@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen API Key</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .section-container { display: none; } /* Sembunyikan semua section secara default */
+        .active-section { display: block; animation: fadeIn 0.5s; } /* Tampilkan yang aktif */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">🔑 API Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('userRegisterSection')">Register User (Get Key)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="#" onclick="showSection('adminRegisterSection')">Register Admin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="#" onclick="showSection('adminLoginSection')">Login Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div id="userRegisterSection" class="section-container active-section">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">👤 User Registration</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Daftar untuk mendapatkan API Key gratis.</p>
+                            <form id="formUserRegister">
+                                <div class="mb-3">
+                                    <label>First Name</label>
+                                    <input type="text" id="userFirstName" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Last Name</label>
+                                    <input type="text" id="userLastName" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label>Email</label>
+                                    <input type="email" id="userEmail" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Simpan & Buat API Key</button>
+                            </form>
+                            
+                            <div id="userResult" class="alert alert-success mt-3 d-none">
+                                <strong>Sukses!</strong> API Key Anda:<br>
+                                <code id="displayApiKey" class="fs-5 text-dark">...</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminRegisterSection" class="section-container">
+            <div class="row justify-content-center">
+                <div class="col-md-5">
+                    <div class="card shadow-sm border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">🛡️ Register Admin Baru</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="formAdminRegister">
+                                <div class="mb-3">
+                                    <label>Email Admin</label>
+                                    <input type="email" id="regAdminEmail" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Password</label>
+                                    <input type="password" id="regAdminPass" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-warning w-100">Daftar Admin</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminLoginSection" class="section-container">
+            <div class="row justify-content-center">
+                <div class="col-md-5">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">🔒 Login Admin</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="formAdminLogin">
+                                <div class="mb-3">
+                                    <label>Email</label>
+                                    <input type="email" id="loginAdminEmail" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Password</label>
+                                    <input type="password" id="loginAdminPass" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100">Masuk Dashboard</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminDashboardSection" class="section-container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>📊 Dashboard Admin</h3>
+                <button onclick="logoutAdmin()" class="btn btn-outline-secondary btn-sm">Keluar / Logout</button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    List User & API Keys
+                </div>
+                <div class="card-body table-responsive">
+                    <button onclick="loadDashboardData()" class="btn btn-sm btn-success mb-3">🔄 Refresh Data</button>
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User ID</th>
+                                <th>Nama Lengkap</th>
+                                <th>Email User</th>
+                                <th>API Key</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let adminToken = localStorage.getItem('adminToken');
+
+        // --- 1. NAVIGASI ---
+        function showSection(sectionId) {
+            // Sembunyikan semua section
+            document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active-section'));
+            // Tampilkan section yang dipilih
+            document.getElementById(sectionId).classList.add('active-section');
+        }
+
+        // Jika sudah login, langsung arahkan ke dashboard saat refresh
+        if (adminToken) {
+            showSection('adminDashboardSection');
+            loadDashboardData();
+        }
+
+        // --- 2. USER REGISTER ---
+        document.getElementById('formUserRegister').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                firstName: document.getElementById('userFirstName').value,
+                lastName: document.getElementById('userLastName').value,
+                email: document.getElementById('userEmail').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (res.ok) {
+                    document.getElementById('userResult').classList.remove('d-none');
+                    document.getElementById('displayApiKey').innerText = result.apiKey;
+                    e.target.reset();
+                } else {
+                    alert('Gagal: ' + result.error);
+                }
+            } catch (err) { alert('Error koneksi ke server'); }
+        });
+
+        // --- 3. ADMIN REGISTER ---
+        document.getElementById('formAdminRegister').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                email: document.getElementById('regAdminEmail').value,
+                password: document.getElementById('regAdminPass').value
+            };
+
+            const res = await fetch(`${API_URL}/admin/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert('Admin berhasil didaftarkan! Silakan Login.');
+                showSection('adminLoginSection');
+                e.target.reset();
+            } else {
+                alert('Gagal daftar admin.');
+            }
+        });
+
+        // --- 4. ADMIN LOGIN ---
+        document.getElementById('formAdminLogin').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                email: document.getElementById('loginAdminEmail').value,
+                password: document.getElementById('loginAdminPass').value
+            };
+
+            const res = await fetch(`${API_URL}/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+
+            if (res.ok) {
+                adminToken = result.token;
+                localStorage.setItem('adminToken', adminToken); // Simpan token
+                alert('Login Berhasil!');
+                showSection('adminDashboardSection');
+                loadDashboardData(); // Ambil data tabel
+                e.target.reset();
+            } else {
+                alert('Login Gagal: ' + result.error);
+            }
+        });
+
+        // --- 5. LOGIC DASHBOARD (LOAD TABLE) ---
+        async function loadDashboardData() {
+            if (!adminToken) return;
+
+            try {
+                // Kita panggil endpoint Keys (karena endpoint keys include user)
+                const res = await fetch(`${API_URL}/admin/keys`, {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + adminToken }
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    alert('Sesi habis, silakan login ulang.');
+                    logoutAdmin();
+                    return;
+                }
+
+                const keys = await res.json();
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                keys.forEach(k => {
+                    const userName = k.user ? `${k.user.firstName} ${k.user.lastName || ''}` : 'User Terhapus';
+                    const userEmail = k.user ? k.user.email : '-';
+                    const userId = k.user ? k.user.id.substring(0, 8) + '...' : '-';
+                    
+                    // Warna badge status
+                    const statusBadge = k.status === 'active' 
+                        ? '<span class="badge bg-success">Active</span>' 
+                        : '<span class="badge bg-danger">Revoked</span>';
+
+                    // Tombol Revoke (hanya jika aktif)
+                    const revokeBtn = k.status === 'active' 
+                        ? `<button class="btn btn-sm btn-danger" onclick="revokeKey('${k.key}')">Matikan Key</button>` 
+                        : '<span class="text-muted text-small">Non-Aktif</span>';
+
+                    const row = `
+                        <tr>
+                            <td>${userId}</td>
+                            <td>${userName}</td>
+                            <td>${userEmail}</td>
+                            <td><small class="font-monospace">${k.key}</small></td>
+                            <td>${statusBadge}</td>
+                            <td>${revokeBtn}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // --- 6. REVOKE KEY ---
+        async function revokeKey(keyTarget) {
+            if (!confirm("Yakin ingin mematikan (revoke) API Key ini? User tidak akan bisa akses lagi.")) return;
+
+            const res = await fetch(`${API_URL}/admin/revoke-key`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + adminToken
+                },
+                body: JSON.stringify({ targetApiKey: keyTarget })
+            });
+
+            if (res.ok) {
+                alert("Berhasil dimatikan!");
+                loadDashboardData(); // Refresh tabel otomatis
+            } else {
+                alert("Gagal mematikan key.");
+            }
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('adminToken');
+            adminToken = null;
+            showSection('adminLoginSection');
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

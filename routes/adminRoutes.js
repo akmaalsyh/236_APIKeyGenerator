@@ -12,4 +12,10 @@ router.post('/admin/register', adminController.createAdmin);
 // Route Revoke Key (SEKARANG DILINDUNGI adminAuth)
 router.put('/admin/revoke-key', adminAuth, adminController.revokeKey);
 
+// ... import lainnya
+
+// Get Data Lists (Protected by Token)
+router.get('/admin/users', adminAuth, adminController.getAllUsers);
+router.get('/admin/keys', adminAuth, adminController.getAllApiKeys);
+
 module.exports = router;

@@ -82,3 +82,27 @@ exports.loginAdmin = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// ... (kode createAdmin, revokeKey, loginAdmin yang sudah ada)
+
+// 4. GET All Users (Hanya Admin)
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 5. GET All API Keys (Hanya Admin)
+exports.getAllApiKeys = async (req, res) => {
+  try {
+    const keys = await ApiKey.findAll({
+      include: [{ model: User, as: 'user' }] // Join dengan tabel User
+    });
+    res.json(keys);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
